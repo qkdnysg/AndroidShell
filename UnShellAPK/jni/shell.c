@@ -1,5 +1,5 @@
-#include "com_demo_jnitool_JNITool.h"
-
+//#include "com_demo_jnitool_JNITool.h"
+#include <jni.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -11,11 +11,16 @@
 #define MAX 128
 #define CHECK_TIME 10
 #define LOG_TAG "com.demo.jnitool"
+
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
+#ifndef NELEM //è®¡ç®—ç»“æž„å…ƒç´ ä¸ªæ•°
+#define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
+#endif
 
 void  anti_debug() __attribute__((constructor));
 void anti_debug()
@@ -30,28 +35,28 @@ void anti_debug()
 	if(fork()==0)
 	{
 		int pt;
-		pt = ptrace(PTRACE_TRACEME, 0, 0, 0); //×Ó½ø³Ì·´µ÷ÊÔ
+		pt = ptrace(PTRACE_TRACEME, 0, 0, 0); //å­è¿›ç¨‹åè°ƒè¯•
 		while(1)
 		{
 			fd = fopen(filename,"r");
-			while(fgets(line,MAX,fd))//´ÓÎÄ¼þÁ÷fdÖÐ¶ÁÈ¡Ò»ÐÐµ½line£¬µ«×î¶à¶ÁÈ¡MAX-1¸ö×Ö·û
+			while(fgets(line,MAX,fd))//ä»Žæ–‡ä»¶æµfdä¸­è¯»å–ä¸€è¡Œåˆ°lineï¼Œä½†æœ€å¤šè¯»å–MAX-1ä¸ªå­—ç¬¦
 			{
 				if(strncmp(line,"TracerPid",9) == 0)
 				{
-					int TracerPid = atoi(&line[10]); //×Ö·û×ªÕûÐÍ
-					LOGI("########## TracerPid = %d,%s", TracerPid,line); //´òÓ¡TracerPid:0/·Ç0
+					int TracerPid = atoi(&line[10]); //å­—ç¬¦è½¬æ•´åž‹
+					LOGI("***** TracerPid = %d", TracerPid); //æ‰“å°TracerPid:0/éž0
 					fclose(fd);
 					if(TracerPid != 0)
 					{
-						LOGI("########## here");
-						int ret = kill( pid,SIGKILL);// ³É¹¦Ö´ÐÐÊ±£¬·µ»Ø0¡£Ê§°Ü·µ»Ø-1
-						LOGI("########## kill = %d", ret);
+						LOGI("***** Debugger is found here! Killing %d ...", pid);
+						int ret = kill( pid,SIGKILL);// æˆåŠŸæ‰§è¡Œæ—¶ï¼Œè¿”å›ž0ã€‚å¤±è´¥è¿”å›ž-1
+						LOGI("***** kill() = %d", ret);
 						return;
 					}
 					break;
 				}
 			}
-			sleep(CHECK_TIME); //¼ì²éÊ±¼ä¼ä¸ôÎª10s
+			sleep(CHECK_TIME); //æ£€æŸ¥æ—¶é—´é—´éš”ä¸º10s
 		}
 	}
 }
@@ -66,17 +71,17 @@ int checkstatus(){
 		sprintf(filename,"/proc/%d/status",pid);//filename=/proc/pid/status
 
 		fd = fopen(filename,"r");
-		while(fgets(line,MAX,fd))//´ÓÎÄ¼þÁ÷fdÖÐ¶ÁÈ¡Ò»ÐÐµ½line£¬µ«×î¶à¶ÁÈ¡MAX-1¸ö×Ö·û
+		while(fgets(line,MAX,fd))//ä»Žæ–‡ä»¶æµfdä¸­è¯»å–ä¸€è¡Œåˆ°lineï¼Œä½†æœ€å¤šè¯»å–MAX-1ä¸ªå­—ç¬¦
 		{
 			if(strncmp(line,"TracerPid",9) == 0)
 			{
-				int TracerPid = atoi(&line[10]); //×Ö·û×ªÕûÐÍ
-				//LOGI("########## TracerPid = %d,%s", TracerPid,line); //´òÓ¡TracerPid:0/·Ç0
+				int TracerPid = atoi(&line[10]); //å­—ç¬¦è½¬æ•´åž‹
+				//LOGI("########## TracerPid = %d,%s", TracerPid,line); //æ‰“å°TracerPid:0/éž0
 				fclose(fd);
 				if(TracerPid != 0)
 				{
 					//LOGI("########## here");
-					//int ret = kill( pid,SIGKILL);// ³É¹¦Ö´ÐÐÊ±£¬·µ»Ø0¡£Ê§°Ü·µ»Ø-1
+					//int ret = kill( pid,SIGKILL);// æˆåŠŸæ‰§è¡Œæ—¶ï¼Œè¿”å›ž0ã€‚å¤±è´¥è¿”å›ž-1
 					LOGI("checkstatus() result=1 !");
 					return 1;
 				}
@@ -86,36 +91,7 @@ int checkstatus(){
 		}
 }
 
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
-	//anti_debug();
-	JNIEnv* env;
-	if(JNI_OK != (*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6)){ //¼ÓÔØÖ¸¶¨°æ±¾µÄJNI
-			return -1;
-	}
-	LOGI("JNI_OnLoad()");
-	return JNI_VERSION_1_6;
-}
-
-JNIEXPORT jstring JNICALL Java_com_demo_jnitool_JNITool_checkey
-  (JNIEnv * env, jclass jcls, jstring key){
-	int isdebugged;
-	const char * chs = "FalseKey!NativeMethod";
-
-	isdebugged = checkstatus();
-	if(isdebugged==0){
-		return key;
-	}else{
-		return (*env)->NewStringUTF(env, chs);
-	}
-
-
-
-}
-
-
-JNIEXPORT jbyteArray JNICALL Java_com_demo_jnitool_JNITool_decrypt
-  (JNIEnv * env, jclass jcls, jstring key, jbyteArray encrypted){
+JNIEXPORT jbyteArray nativeDecrypt(JNIEnv * env, jclass jcls, jstring key, jbyteArray encrypted){
 
 	jclass clazz=(*env)->FindClass(env,"com/demo/jnitool/RC4");
 	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
@@ -127,8 +103,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_demo_jnitool_JNITool_decrypt
 
 }
 
-JNIEXPORT jbyteArray JNICALL Java_com_demo_jnitool_JNITool_unShell
-  (JNIEnv * env, jclass clazz, jbyteArray bytes){
+JNIEXPORT jbyteArray JNICALL nativeUnShell(JNIEnv * env, jclass clazz, jbyteArray bytes){
 
 	jsize len = (*env)->GetArrayLength(env, bytes);
 	jbyte* pbyte = (jbyte*)malloc(len * sizeof(jbyte));
@@ -136,11 +111,57 @@ JNIEXPORT jbyteArray JNICALL Java_com_demo_jnitool_JNITool_unShell
 
 	int i=0;
 	for(;i<len;i++){
-		pbyte[i] = (jbyte)(0xFF ^ pbyte[i]);//Ïàµ±ÓÚÖð×Ö½ÚÈ¡·´
+		pbyte[i] = (jbyte)(0xFF ^ pbyte[i]);//ç›¸å½“äºŽé€å­—èŠ‚å–å
 	}
 	(*env)->SetByteArrayRegion(env,bytes, 0, len, pbyte);
 
 	free(pbyte);
 	return bytes;
-
 }
+
+JNIEXPORT jstring nativeCheckey(JNIEnv * env, jclass jcls, jstring key){
+	int isdebugged;
+	const char * chs = "FalseKey!NativeMethod";
+
+	isdebugged = checkstatus();
+	if(isdebugged==0){
+		return key;
+	}else{
+		return (*env)->NewStringUTF(env, chs);
+	}
+}
+
+static JNINativeMethod jniMethods[] = {
+	{"decrypt", "(Ljava/lang/String;[B)[B", (void*)nativeDecrypt},
+	{"unShell", "([B)[B", (void*)nativeUnShell},
+	{"checkey", "(Ljava/lang/String;)Ljava/lang/String;", (void*)nativeCheckey}
+};
+
+JNIEnv* env;
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+	//anti_debug();
+
+	if(JNI_OK != (*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6)){ //åŠ è½½æŒ‡å®šç‰ˆæœ¬çš„JNI
+			return -1;
+	}
+	LOGI("JNI_OnLoad()");
+	jclass jni_class = (*env)->FindClass(env, "com/demo/jnitool/JNITool");
+	//æ³¨å†Œæœªå£°æ˜Žæœ¬åœ°æ–¹æ³•
+	if (JNI_OK == (*env)->RegisterNatives(env, jni_class, jniMethods, NELEM(jniMethods))){
+			LOGI("RegisterNatives() OK!");
+		} else {
+			LOGE("RegisterNatives() FAILED!");
+			return -1;
+		}
+	return JNI_VERSION_1_6;
+}
+
+void JNI_OnUnLoad(JavaVM* vm, void* reserved){
+	LOGI("JNI_OnUnLoad()");
+	jclass jni_class = (*env)->FindClass(env, "com/demo/jnitool/JNITool");
+	(*env)->UnregisterNatives(env, jni_class);
+	LOGI("UnregisterNatives()");
+}
+
+
