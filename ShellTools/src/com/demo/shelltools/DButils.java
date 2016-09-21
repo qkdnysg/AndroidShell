@@ -31,7 +31,7 @@ public class DButils {
 										+ rs.getInt(2) + "\t"
 											+ rs.getString(3));
 					
-					ps.setInt(1, 0);
+					ps.setInt(1, 1); //为了测试方便，此处暂不改为0，即密钥用后不失效。
 					ps.setInt(2, rs.getInt(1));
 					ps.executeUpdate();
 					//stmt.executeUpdate("update keydb set usable = 0 where id = " + rs.getInt(1));
