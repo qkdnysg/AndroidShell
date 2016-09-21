@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme"
         android:name="com.demo.unshellapk.ProxyApplication" >
         
-		 <meta-data android:name="APPLICATION_CLASS_NAME" android:value="com.demo.originalapk.OriginalApplication"/>
+		 <meta-data android:name="APP_CLASS_NAME" android:value="com.demo.originalapk.OriginalApplication"/>
         
 		 <activity
             android:name="com.demo.originalapk.MainActivity"
@@ -30,7 +30,11 @@
         </activity>
         
         <activity
-            android:name="com.demo.originalapk.SecondActivity"></activity>
+            android:name="com.demo.originalapk.SecondActivity">
+        </activity>
+        <activity
+            android:name="com.demo.originalapk.ThirdActivity">
+        </activity>
     </application>
 
 </manifest>
