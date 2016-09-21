@@ -246,8 +246,8 @@ public class ProxyApplication extends Application{
 						.getApplicationInfo(this.getPackageName(),
 								PackageManager.GET_META_DATA);
 				Bundle bundle = ai.metaData;
-				if (bundle != null && bundle.containsKey("APP_CLASS_NAME")) {
-					appClassName = bundle.getString("APP_CLASS_NAME");
+				if (bundle != null && bundle.containsKey(appkey)) {
+					appClassName = bundle.getString(appkey);
 					//className 是配置在xml文件中的。获取meta-data中的原始apk的Application类名：com.demo.originalapk.OriginalApplication
 					
 				} else {
