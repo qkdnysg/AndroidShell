@@ -9,11 +9,12 @@
         android:targetSdkVersion="20" />
 
     <application
+        android:name=".OriginalApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" 
-        android:name="com.demo.originalapk.OriginalApplication">
+        android:theme="@style/AppTheme" >
+
         <!-- android:name="com.demo.originalapk.OriginalApplication" -->
         <activity
             android:name=".MainActivity"
@@ -27,6 +28,10 @@
         <activity
             android:name=".SecondActivity"
             android:label="@string/title_activity_second" >
+        </activity>
+        <activity
+            android:name=".ThirdActivity"
+            android:label="@string/title_activity_third" >
         </activity>
     </application>
 
