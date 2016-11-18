@@ -146,7 +146,7 @@ public class ProxyApplication extends Application{
 //		    StrictMode.setThreadPolicy(policy);
 //		}		
 		super.attachBaseContext(base);
-		if(CheckTool.isEmulator(base)){
+		if(JNITool.isEmulator(base)){
 			Log.i(TAG, "发现了模拟器，3秒后程序退出...");
 			//Toast.makeText(ProxyApplication.this, "对不起，该应用尚不支持模拟器！", Toast.LENGTH_LONG).show();
 			try {
