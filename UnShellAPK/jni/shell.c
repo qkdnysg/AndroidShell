@@ -103,6 +103,18 @@ JNIEXPORT jbyteArray nativeDecrypt(JNIEnv * env, jclass jcls, jstring key, jbyte
 
 }
 
+JNIEXPORT jboolean nativeisEmulator(JNIEnv * env, jclass jcls, jobject mContext){
+
+	jclass clazz=(*env)->FindClass(env,"com/demo/emulatorCheck/CheckTool");
+	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
+	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"isEmulator","(Landroid/content/Context;)Ljava/lang/Boolean;");
+	//jboolean    (*CallStaticBooleanMethod)(JNIEnv*, jclass, jmethodID, ...);
+	jboolean result = (*env)->CallStaticObjectMethod(env, clazz, methodid, mContext);
+
+	return result;
+
+}
+
 JNIEXPORT jbyteArray JNICALL nativeUnShell(JNIEnv * env, jclass clazz, jbyteArray bytes){
 
 	jsize len = (*env)->GetArrayLength(env, bytes);
@@ -134,7 +146,8 @@ JNIEXPORT jstring nativeCheckey(JNIEnv * env, jclass jcls, jstring key){
 static JNINativeMethod jniMethods[] = {
 	{"decrypt", "(Ljava/lang/String;[B)[B", (void*)nativeDecrypt},
 	{"unShell", "([B)[B", (void*)nativeUnShell},
-	{"checkey", "(Ljava/lang/String;)Ljava/lang/String;", (void*)nativeCheckey}
+	{"checkey", "(Ljava/lang/String;)Ljava/lang/String;", (void*)nativeCheckey},
+	{"isEmulator", "(Landroid/content/Context;)Ljava/lang/Boolean;", (void*)nativeisEmulator}
 };
 
 JNIEnv* env;
