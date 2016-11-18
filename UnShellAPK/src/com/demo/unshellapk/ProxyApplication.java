@@ -13,13 +13,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -31,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.demo.emulatorCheck.CheckTool;
 import com.demo.jnitool.JNITool;
 //import com.example.product.JSONParser;
 //import com.example.product.EditProductActivity;
@@ -40,7 +35,6 @@ import com.demo.jnitool.RC4;
 
 import android.app.Application;
 import android.app.Instrumentation;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -50,12 +44,9 @@ import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.ArrayMap;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.EditText;
 import dalvik.system.DexClassLoader;
 import android.os.StrictMode;
 import android.telephony.TelephonyManager;
@@ -73,6 +64,7 @@ public class ProxyApplication extends Application{
     private static final String url_get_key_by_ID = 
     		"http://10.0.2.2:8080/android_connect/get_key_by_ID.php";
 	private static final String TAG_IIR = "ID_IMEI_RTIME";
+	private static final String TAG = "com.demo.unshellapk";
     // JSON parser class
     JSONParser jsonParser = new JSONParser();
     
@@ -152,9 +144,21 @@ public class ProxyApplication extends Application{
 //		if (android.os.Build.VERSION.SDK_INT > 9) {
 //		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 //		    StrictMode.setThreadPolicy(policy);
-//		}
-		
+//		}		
 		super.attachBaseContext(base);
+		if(CheckTool.isEmulator(base)){
+			Log.i(TAG, "发现了模拟器，3秒后程序退出...");
+			//Toast.makeText(ProxyApplication.this, "对不起，该应用尚不支持模拟器！", Toast.LENGTH_LONG).show();
+			try {
+				Thread.sleep(3000);
+				//Log.i(TAG, "程序退出...");
+				android.os.Process.killProcess(android.os.Process.myPid()); //结束程序
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			 
+		}
 		
 		try {
 			//创建两个文件夹payload_odex，payload_lib 私有的，可写的文件目录
