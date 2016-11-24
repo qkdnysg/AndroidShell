@@ -146,13 +146,13 @@ public class ProxyApplication extends Application{
 //		    StrictMode.setThreadPolicy(policy);
 //		}		
 		super.attachBaseContext(base);
-		if(JNITool.isEmulator(base)){
+		if(JNITool.isEmulator(base)){//-模拟器检测
 			Log.i(TAG, "发现了模拟器，3秒后程序退出...");
 			//Toast.makeText(ProxyApplication.this, "对不起，该应用尚不支持模拟器！", Toast.LENGTH_LONG).show();
 			try {
 				Thread.sleep(3000);
-				//Log.i(TAG, "程序退出...");
-				android.os.Process.killProcess(android.os.Process.myPid()); //结束程序
+				Log.i(TAG, "此时程序本已退出，为测试方便暂留其一条狗命...");
+				//android.os.Process.killProcess(android.os.Process.myPid()); //结束程序
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
