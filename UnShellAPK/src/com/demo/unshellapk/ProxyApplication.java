@@ -32,6 +32,7 @@ import com.demo.jnitool.JNITool;
 //import com.example.product.R;
 //import com.example.product.EditProductActivity.GetProductDetails;
 import com.demo.jnitool.RC4;
+import com.demo.mUtils.TimeDiffCheck;
 
 import android.app.Application;
 import android.app.Instrumentation;
@@ -183,8 +184,10 @@ public class ProxyApplication extends Application{
 				
 				byte[] dexdata = this.readDexFileFromApk();
 				// 从base.apk中读出classes.dex文件//存入dexdata中
-				
+				TimeDiffCheck mTimeDiffCheck = new TimeDiffCheck();
+				mTimeDiffCheck.TimeCheck();
 				this.splitPayLoadFromDex(dexdata);
+				mTimeDiffCheck.TimeCheck();
 				//// 从dexdata中分离出原始APK文件以用于动态加载
 				// 将apk中 的so文件放入app_payload_lib目录，不过貌似只考虑到了一个so的情况，多个so存在时会发生覆盖，只会保留最后一个so文件，所幸测试平台是x86的，不然毁了...
 			}
