@@ -93,7 +93,7 @@ int checkstatus(){
 
 JNIEXPORT jbyteArray nativeDecrypt(JNIEnv * env, jclass jcls, jstring key, jbyteArray encrypted){
 
-	jclass clazz=(*env)->FindClass(env,"com/demo/jnitool/RC4");
+	jclass clazz=(*env)->FindClass(env,"com/demo/mUtils/RC4");
 	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
 	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"RC4Base","([BLjava/lang/String;)[B");
 	//void        (*CallStaticVoidMethod)(JNIEnv*, jclass, jmethodID, ...);
@@ -105,10 +105,9 @@ JNIEXPORT jbyteArray nativeDecrypt(JNIEnv * env, jclass jcls, jstring key, jbyte
 
 JNIEXPORT jboolean nativeisEmulator(JNIEnv * env, jclass jcls, jobject mContext){
 
-	jclass clazz=(*env)->FindClass(env,"com/demo/emulatorCheck/CheckTool");
+	jclass clazz=(*env)->FindClass(env,"com/demo/mUtils/EmulatorCheckTool");
 	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
 	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"isEmulator","(Landroid/content/Context;)Ljava/lang/Boolean;");
-	//jboolean    (*CallStaticBooleanMethod)(JNIEnv*, jclass, jmethodID, ...);
 	jboolean result = (*env)->CallStaticObjectMethod(env, clazz, methodid, mContext);
 
 	return result;
