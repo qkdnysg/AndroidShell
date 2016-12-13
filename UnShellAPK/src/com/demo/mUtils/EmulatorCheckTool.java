@@ -1,4 +1,4 @@
-package com.demo.emulatorCheck;
+package com.demo.mUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +11,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 
-public class CheckTool {
+public class EmulatorCheckTool {
 	
 	//	0×1
 	//	检测"/dev/socket/qemud", "/dev/qemu_pipe"这两个通道（模拟器专有）

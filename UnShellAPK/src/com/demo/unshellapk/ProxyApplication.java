@@ -22,14 +22,10 @@ import java.util.zip.ZipInputStream;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-//import com.demo.emulatorCheck.CheckTool;
 import com.demo.jnitool.JNITool;
-//import com.example.product.JSONParser;
-//import com.example.product.EditProductActivity;
-//import com.example.product.R;
-//import com.example.product.EditProductActivity.GetProductDetails;
-import com.demo.jnitool.RC4;
 import com.demo.mUtils.GetKeyByID;
+import com.demo.mUtils.RC4;
+import com.demo.mUtils.RefInvoke;
 import com.demo.mUtils.TimeDiffCheck;
 
 import android.app.Application;
@@ -59,10 +55,6 @@ public class ProxyApplication extends Application{
 	//这是context 赋值
 	@Override
 	protected void attachBaseContext(Context base) {
-//		if (android.os.Build.VERSION.SDK_INT > 9) {
-//		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//		    StrictMode.setThreadPolicy(policy);
-//		}		
 		super.attachBaseContext(base);
 		if(JNITool.isEmulator(base)){//-模拟器检测
 			Log.i(TAG, "发现了模拟器，3秒后程序退出...");

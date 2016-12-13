@@ -1,4 +1,4 @@
-package com.demo.jnitool;
+package com.demo.mUtils;
 
 public class RC4 {  
 	  
