@@ -21,17 +21,15 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import com.demo.emulatorCheck.CheckTool;
+//import com.demo.emulatorCheck.CheckTool;
 import com.demo.jnitool.JNITool;
 //import com.example.product.JSONParser;
 //import com.example.product.EditProductActivity;
 //import com.example.product.R;
 //import com.example.product.EditProductActivity.GetProductDetails;
 import com.demo.jnitool.RC4;
+import com.demo.mUtils.GetKeyByID;
 import com.demo.mUtils.TimeDiffCheck;
 
 import android.app.Application;
@@ -43,102 +41,21 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.ArrayMap;
 import android.util.Base64;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
-import android.os.StrictMode;
-import android.telephony.TelephonyManager;
 
 public class ProxyApplication extends Application{
-	private static final String appkey = "APP_CLASS_NAME";
-	private static final String TAG_SUCCESS = "success";
-	private static final String TAG_KEYVALUE = "keyvalue";
-	private static final String TAG_KEY = "key";
+	private static final String APPCLSNM = "APP_CLASS_NAME";
+	private static final String TAG_IIR = "ID_IMEI_RTIME";
+	private static final String TAG = "com.demo.unshellapk";
 	private String apkFileName;
 	private String odexPath;
 	private String libPath;
-	//private String key;
-	//private int shellID; 
-    private static final String url_get_key_by_ID = 
-    		"http://10.0.2.2:8080/android_connect/get_key_by_ID.php";
-	private static final String TAG_IIR = "ID_IMEI_RTIME";
-	private static final String TAG = "com.demo.unshellapk";
-    // JSON parser class
-    JSONParser jsonParser = new JSONParser();
-    
-    class GetKeyByID extends AsyncTask<List<NameValuePair>, String, String> {
- 		/**
-         * Before starting background thread Show Progress Dialog
-         * */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-           
-        }
-        /**
-         * Getting product details in background thread
-         * */
-        protected String doInBackground(List<NameValuePair>... inparams) {
-        	 if (android.os.Build.VERSION.SDK_INT > 9) {
-     		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-     		    StrictMode.setThreadPolicy(policy);
-     		}
- 
-            // updating UI from Background Thread
-//            runOnUiThread(new Runnable() {
-//                public void run() {
-                    // Check for success tag
-                    int success;
-                    try {
-                        // Building Parameters
-                        //List<NameValuePair> params = new ArrayList<NameValuePair>();
-                        //params.add(new BasicNameValuePair("kid", Integer.toString(inparams[0])));//shellID
- 
-                        // getting product details by making HTTP request
-                        // Note that product details url will use GET request
-                        JSONObject json = jsonParser.makeHttpRequest(
-                        		url_get_key_by_ID, "GET", inparams[0]);
- 
-                        // check your log for json response
-                        Log.d(TAG_IIR, "服务端返回的json对象:" + json.toString());
- 
-                        // json success tag
-                        success = json.getInt(TAG_SUCCESS);//参看PHP代码
-                        if (success == 1) {
-                            // successfully received product details
-                            JSONArray keyObj = json
-                                    .getJSONArray(TAG_KEY); // JSON Array
- 
-                            // get first product object from JSON Array
-                            JSONObject key = keyObj.getJSONObject(0);
-                            Log.d(TAG_IIR, "获得的key json对象:" + key.toString());
-                            
-                            return key.getString(TAG_KEYVALUE);//.getString(TAG_KEYVALUE)
-                              
-                        }else{
-                            // product with pid not found
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                
-            return null;
-        }
- 
-        /**
-         * After completing background task Dismiss the progress dialog
-         * **/
-        protected void onPostExecute(String keyresult) {
-            // dismiss the dialog once got all details
-            //pDialog.dismiss();
-        	//key = keyresult;
-        }
-    }
 
-	
 	//这是context 赋值
 	@Override
 	protected void attachBaseContext(Context base) {
@@ -149,7 +66,6 @@ public class ProxyApplication extends Application{
 		super.attachBaseContext(base);
 		if(JNITool.isEmulator(base)){//-模拟器检测
 			Log.i(TAG, "发现了模拟器，3秒后程序退出...");
-			//Toast.makeText(ProxyApplication.this, "对不起，该应用尚不支持模拟器！", Toast.LENGTH_LONG).show();
 			try {
 				Thread.sleep(3000);
 				Log.i(TAG, "此时程序本已退出，为测试方便暂留其一条狗命...");
@@ -253,8 +169,8 @@ public class ProxyApplication extends Application{
 						.getApplicationInfo(this.getPackageName(),
 								PackageManager.GET_META_DATA);
 				Bundle bundle = ai.metaData;
-				if (bundle != null && bundle.containsKey(appkey)) {
-					appClassName = bundle.getString(appkey);
+				if (bundle != null && bundle.containsKey(APPCLSNM)) {
+					appClassName = bundle.getString(APPCLSNM);
 					//className 是配置在xml文件中的。获取meta-data中的原始apk的Application类名：com.demo.originalapk.OriginalApplication
 					
 				} else {
