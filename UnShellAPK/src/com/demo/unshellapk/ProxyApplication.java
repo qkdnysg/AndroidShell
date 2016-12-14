@@ -60,17 +60,16 @@ public class ProxyApplication extends Application{
 			Log.i(TAG, "发现了模拟器，3秒后程序退出...");
 			try {
 				Thread.sleep(3000);
-				Log.i(TAG, "此时程序本已退出，为测试方便暂留其一条狗命...");
+				Log.i(TAG, "程序退出...");
 				//android.os.Process.killProcess(android.os.Process.myPid()); //结束程序
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			 
 		}
 		
 		try {
-			//创建两个文件夹payload_odex，payload_lib 私有的，可写的文件目录
+			//创建两个私有的，可写的文件夹payload_odex，payload_lib 
 			File odex = this.getDir("payload_odex", MODE_PRIVATE);
 			///data/data/com.demo.unshellapk/app_payload_odex
 			File libs = this.getDir("payload_lib", MODE_PRIVATE);
@@ -79,24 +78,22 @@ public class ProxyApplication extends Application{
 			///data/data/com.demo.unshellapk/app_payload_odex
 			libPath = libs.getAbsolutePath();
 			//data/data/com.demo.unshellapk/app_payload_lib
-			apkFileName = odex.getAbsolutePath() + "/payload.apk";
+			apkFileName = odexPath + "/payload.apk";//测试成功
 			//apkFileName = /data/data/com.demo.unshellapk/app_payload_odex/payload.apk
 			File dexFile = new File(apkFileName);
 			//dexFile=/data/data/com.demo.unshellapk/app_payload_odex/payload.apk
-			Log.i("demo", "apk size:"+dexFile.length()); 
-			//此时的payload.apk尚不存在，所以apk size:0 
-			if (!dexFile.exists())//dexFile不存在
-			{
-				dexFile.createNewFile();  
-				//在app_payload_odex文件夹内，创建payload.apk
-				
+			Log.i(TAG, "载荷apk size:"+dexFile.length()); 
+			 
+			if (!dexFile.exists() && dexFile.createNewFile())
+			{//dexFile不存在，  在app_payload_odex文件夹内，创建payload.apk
+			
 				byte[] dexdata = this.readDexFileFromApk();
-				// 从base.apk中读出classes.dex文件//存入dexdata中
+				// 从base.apk中读出classes.dex文件，存入dexdata中
 				TimeDiffCheck mTimeDiffCheck = new TimeDiffCheck();
 				mTimeDiffCheck.TimeCheck();
 				this.splitPayLoadFromDex(dexdata);
 				mTimeDiffCheck.TimeCheck();
-				//// 从dexdata中分离出原始APK文件以用于动态加载
+				/// 从dexdata中分离出原始APK文件用于动态加载
 				// 将apk中 的so文件放入app_payload_lib目录，不过貌似只考虑到了一个so的情况，多个so存在时会发生覆盖，只会保留最后一个so文件，所幸测试平台是x86的，不然毁了...
 			}
 			// 配置动态加载环境
@@ -264,10 +261,16 @@ public class ProxyApplication extends Application{
 	 * @throws IOException
 	 */
 	private void splitPayLoadFromDex(byte[] apkdata) throws IOException {
+//		try {
+//			Thread.sleep(3000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 		int ablen = apkdata.length;
-		//前边传来的参数为dexdata，这里的字节数组apkdata应为嵌入了壳APK的解壳dex文件的字节数组，
-		//即classes.dex.length
-		//取壳APK的长度   这里的长度取值，对应加壳时长度的赋值,都可以做些简化
+		//前边传来的参数为dexdata，这里的字节数组apkdata应为嵌入了OriginalAPK_en的dex文件的字节数组，即classes.dex
+
 		byte[] dexlen = new byte[4];
 		byte[] bshellID = new byte[4];
 		System.arraycopy(apkdata,ablen - 4 - 4, dexlen, 0, 4);//拷贝apkdata的最后8--4字节到dexlen
@@ -395,11 +398,11 @@ public class ProxyApplication extends Application{
 		ZipInputStream localZipInputStream = new ZipInputStream(
 				new BufferedInputStream(new FileInputStream(
 						this.getApplicationInfo().sourceDir)));
-		//this.getApplicationInfo().sourceDir=data/app/com.demo.unshellapk-1.apk/base.apk这个可能是初始安装时未优化的apk
+		//this.getApplicationInfo().sourceDir=data/app/com.demo.unshellapk-1.apk/base.apk：初始安装时未优化的apk
 		while (true) {
 			ZipEntry localZipEntry = localZipInputStream.getNextEntry();//获取base.apk中的子项
 			if (localZipEntry == null) {
-				localZipInputStream.close();
+				//localZipInputStream.close();//这个貌似多余...
 				break;
 			}
 			if (localZipEntry.getName().equals("classes.dex")) {
@@ -411,9 +414,9 @@ public class ProxyApplication extends Application{
 					dexByteArrayOutputStream.write(arrayOfByte, 0, i);
 				}
 			}
-			localZipInputStream.closeEntry(); //非classes.dex时关闭该子项//获取项后还需要关闭项？
+			localZipInputStream.closeEntry(); //非classes.dex时关闭该子项
 		}
-		localZipInputStream.close();//遍历完所有子项后关闭流，不止一个classes.dex时都会写入输出流？
+		localZipInputStream.close();//遍历完所有子项后关闭流
 		return dexByteArrayOutputStream.toByteArray();////以字节数组形式返回classes.dex
 	}
 
