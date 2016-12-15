@@ -76,12 +76,9 @@ int checkstatus(){
 			if(strncmp(line,"TracerPid",9) == 0)
 			{
 				int TracerPid = atoi(&line[10]); //字符转整型
-				//LOGI("########## TracerPid = %d,%s", TracerPid,line); //打印TracerPid:0/非0
 				fclose(fd);
 				if(TracerPid != 0)
 				{
-					//LOGI("########## here");
-					//int ret = kill( pid,SIGKILL);// 成功执行时，返回0。失败返回-1
 					LOGI("checkstatus() result=1 !");
 					return 1;
 				}

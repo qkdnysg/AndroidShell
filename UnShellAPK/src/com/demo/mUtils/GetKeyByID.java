@@ -40,29 +40,18 @@ public class GetKeyByID extends AsyncTask<List<NameValuePair>, String, String> {
  		// Check for success tag
         int success;
         try {
-            // Building Parameters
-        	
             JSONObject json = jsonParser.makeHttpRequest(
             		url_get_key_by_ID, "GET", inparams[0]);
-
-            // check your log for json response
             Log.d(TAG, "服务端返回的json对象:" + json.toString());
-
             // json success tag
             success = json.getInt(TAG_SUCCESS);//参看PHP代码
             if (success == 1) {
-                // successfully received product details
-                JSONArray keyObj = json
-                        .getJSONArray(TAG_KEY); // JSON Array
-
-                // get first product object from JSON Array
+                JSONArray keyObj = json.getJSONArray(TAG_KEY); // JSON Array
                 JSONObject key = keyObj.getJSONObject(0);
                 Log.d(TAG, "获得的key json对象:" + key.toString());
-                
                 return key.getString(TAG_KEYVALUE);//.getString(TAG_KEYVALUE)
-                  
             }else{
-                // product with pid not found
+            	return null;
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -91,19 +91,20 @@ public class ProxyApplication extends Application{
 				// 从base.apk中读出classes.dex文件，存入dexdata中
 				TimeDiffCheck mTimeDiffCheck = new TimeDiffCheck();
 				mTimeDiffCheck.TimeCheck();
-				this.splitPayLoadFromDex(dexdata);
+				this.splitPayLoadFromDex(dexdata);//还原OriginalAPK
 				mTimeDiffCheck.TimeCheck();
-				/// 从dexdata中分离出原始APK文件用于动态加载
-				// 将apk中 的so文件放入app_payload_lib目录，不过貌似只考虑到了一个so的情况，多个so存在时会发生覆盖，只会保留最后一个so文件，所幸测试平台是x86的，不然毁了...
+				// 从dexdata中分离出原始APK文件用于动态加载
+				// 将payload.apk中 的so文件放入app_payload_lib目录，不过貌似只考虑到了一个so的情况，多个so存在时会发生覆盖，只会保留最后一个so文件
 			}
 			// 配置动态加载环境
 			Object currentActivityThread = RefInvoke.invokeStaticMethod(
 					"android.app.ActivityThread", "currentActivityThread",
-					new Class[] {}, new Object[] {});//获取主线程对象 http://blog.csdn.net/myarrow/article/details/14223493
+					new Class[] {}, new Object[] {});
+			//获取主线程对象 http://blog.csdn.net/myarrow/article/details/14223493
 			//currentActivityThread=android.app.ActivityThread@9a1b8f0
+			//ActivityThread类即代表Application主线程
 			String packageName = this.getPackageName();
-			//packageName = com.demo.unshellapk//当前apk的包名
-			
+			//packageName = com.demo.unshellapk,即当前apk的包名
 			//下面两句不是太理解
 			ArrayMap mPackages = (ArrayMap) RefInvoke.getFieldOjbect(
 					"android.app.ActivityThread", currentActivityThread,
@@ -127,20 +128,20 @@ public class ProxyApplication extends Application{
 			//把当前进程的DexClassLoader 设置成了被加壳apk的DexClassLoader  ----有点c++中进程环境的意思~~
 			RefInvoke.setFieldOjbect("android.app.LoadedApk", "mClassLoader",
 					wr.get(), dLoader);
-			//wr.get().mClassLoader=dLoader//置换类加载器
+			//wr.get().mClassLoader=dLoader//置换类加载器，实现动态加载之核心
 			
-			Log.i("demo","classloader:"+dLoader);
+			Log.i(TAG,"自定义的DexClassLoader:"+dLoader);
 			
 			try{
 				Object actObj = dLoader.loadClass("com.demo.originalapk.MainActivity");
-				Log.i("demo", "actObj:"+actObj);
+				Log.i(TAG, "actObj:"+actObj);
 			}catch(Exception e){
-				Log.i("demo", "activity:"+Log.getStackTraceString(e));
+				Log.i(TAG, "activity:"+Log.getStackTraceString(e));
 			}//这段Jack_Jia的版本里没有
 			
 
 		} catch (Exception e) {
-			Log.i("demo", "error:"+Log.getStackTraceString(e));
+			Log.i(TAG, "error:"+Log.getStackTraceString(e));
 			e.printStackTrace();
 		}
 	}
@@ -150,7 +151,7 @@ public class ProxyApplication extends Application{
 		{
 			//loadResources(apkFileName);
 			
-			Log.i("demo", "onCreate");
+			Log.i(TAG, "onCreate方法启动...");
 			// 如果源应用配置有Appliction对象，则替换为源应用Applicaiton，以便不影响源程序逻辑。
 			String appClassName = null;
 			try {
@@ -236,7 +237,7 @@ public class ProxyApplication extends Application{
 			app.onCreate();
 		}
 	}
-//MD5方法
+	//MD5方法
 	public String md5(String string) {
 	    byte[] hash;
 	    try {
@@ -286,62 +287,31 @@ public class ProxyApplication extends Application{
 		Log.d(TAG, "OriginalAPK_en大小为："+readInt+"，shellID为："+shellID);
 		//System.out.println(Integer.toHexString(readInt));
 		byte[] newdex = new byte[readInt];
-		//把壳APK内容拷贝到newdex中
+		//把OriginalAPK_en内容拷贝到newdex中
 		System.arraycopy(apkdata, ablen - 4 - 4 - readInt, newdex, 0, readInt);
-		//若加壳是加密处理的话, 这里应该加上对APK的解密操作
-		//对壳APK进行脱壳
-		//newdex = unShell(newdex); //此时得到的newdex即为源APK
-//		DButils mdb = new DButils(shellID);
-//		mdb.changekey();
-//		String key = mdb.getkey();
-//		NetThread mNetThread = new NetThread(shellID);
-//		mNetThread.run();
-//		String key = mNetThread.getkey();
-		//new GetKeyByID().execute();
-		String KID = String.valueOf(shellID);
+		
+		String KID = String.valueOf(shellID);//将加固id转为字符串型
 		TelephonyManager mTm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);    
 		String IMEI = mTm.getDeviceId();
 		String RTIME = String.valueOf(System.currentTimeMillis());
-		Log.d(TAG_IIR, "KID:" + KID + "-----IMEI:" + IMEI + "-----RTIME:" + RTIME);
-		
+		Log.d(TAG, "KID:" + KID + "-----IMEI:" + IMEI + "-----RTIME:" + RTIME);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("kid", KID));
+        params.add(new BasicNameValuePair("KID", KID));
         params.add(new BasicNameValuePair("IMEI", IMEI));
         params.add(new BasicNameValuePair("RTIME", RTIME));
         
 		GetKeyByID mGetKeyByID = new GetKeyByID();
-		//JSONArray keyjson = mGetKeyByID.doInBackground(params);
-		String keye = mGetKeyByID.doInBackground(params);
-		//int jsonlen = keyjson.length();
-		//byte[] bkeyjson = new byte[jsonlen];
-		//String keyrc4 = "";
-		/*for(int i = 0, tmp=0; i < jsonlen; i++) {
-			try {
-				tmp = Integer.parseInt(keyjson.getString(i));
-				bkeyjson[i] =  (byte)(tmp);//0xFF ^  
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}*/
-		//Log.d(TAG_IIR, "keye:" + keye);
+		String keye = mGetKeyByID.doInBackground(params);//服务端返回经加密的key
 		byte[] bkeyjson = Base64.decode(keye.getBytes(), Base64.DEFAULT);//得到的值与服务端发送的一致，证明到此是正确的
-		//Log.d(TAG_IIR, "keye2:" + keye2);
 		String keymd5 = md5(KID + IMEI + RTIME);
-		Log.d(TAG_IIR, "keymd5:" + keymd5);
-		//String keye2 = new String(bkeyjson,"utf-8");
-		//keyrc4 = 
-		String key = RC4.decry_RC4(bkeyjson, keymd5);
-//		String hexStr = RC4.encry_RC4_string(keyrc4, keymd5);
-//		byte[] bkey = RC4.HexString2Bytes(hexStr);
-//		String key = new String(bkey,"utf-8");
-		Log.d(TAG_IIR, "key:" + key);
-		
-		key = JNITool.checkey(key);
-		
-		Log.i("demo", "开始脱壳");
+		Log.d(TAG, "ID + IMEI + RTIME之md5值为:" + keymd5);
+		String key = RC4.decry_RC4(bkeyjson, keymd5);//解密得到加密密钥，该步有待改进
+		Log.d(TAG, "加密/解密密钥为:" + key);
+		key = JNITool.checkey(key);//第二次调试检测，若检测到调试器，则key将被该方法修改
+		Log.i("demo", "开始解密");
 		newdex = JNITool.decrypt(key, newdex);
-		newdex = JNITool.unShell(newdex);		 
-		Log.i("demo", "脱壳完成");
+		newdex = JNITool.unShell(newdex);//逐字节取反		 
+		Log.i("demo", "解密完成");
 		
 		
 		//写入apk文件   
@@ -349,13 +319,13 @@ public class ProxyApplication extends Application{
 		try {
 			FileOutputStream localFileOutputStream = new FileOutputStream(file);
 			localFileOutputStream.write(newdex);
-			//将脱壳后的字节数组newdex通过输出流写入文件“apkFileName”中，此时的“apkFileName”即为源APK//此时的app_payload_odex/payload.apk即为原始apk
+			//将脱壳后的字节数组newdex通过输出流写入文件“apkFileName”中，此时的“apkFileName”即为原始APK，即app_payload_odex/payload.apk即为原始apk
 			localFileOutputStream.close();
 		} catch (IOException localIOException) {
 			throw new RuntimeException(localIOException);
 		}
 		
-		//分析源apk文件
+		//提取payload.apk文件中的libXXX.so文件至app_payload_lib目录下，意味着本方案可以支持payload.apk含so的情况
 		ZipInputStream localZipInputStream = new ZipInputStream(
 				new BufferedInputStream(new FileInputStream(file)));
 		while (true) {
@@ -364,9 +334,10 @@ public class ProxyApplication extends Application{
 				localZipInputStream.close();//遍历完APK中的项目时关闭流跳出循环
 				break;
 			}
-			//取出源APK用到的so文件，放到 libPath中（data/data/包名/payload_lib)
+			//取出源APK用到的so文件，放到 libPath中（data/data/包名/app_payload_lib)
+			//存在问题：不同架构的同名so文件会发生覆盖的情况，有机会验证一下
 			String name = localZipEntry.getName();
-			if (name.startsWith("lib/") && name.endsWith(".so")) {//只考虑到了一个so的情况！
+			if (name.startsWith("lib/") && name.endsWith(".so")) {
 				File storeFile = new File(libPath + "/"
 						+ name.substring(name.lastIndexOf('/')));
 				storeFile.createNewFile();
@@ -383,9 +354,7 @@ public class ProxyApplication extends Application{
 			}
 			localZipInputStream.closeEntry();
 		}
-		localZipInputStream.close();
-
-
+		localZipInputStream.close();//这个貌似多余...
 	}
 
 	
