@@ -277,11 +277,14 @@ public class ProxyApplication extends Application{
 		System.arraycopy(apkdata,ablen - 4, bshellID, 0, 4);//拷贝shellID到bshellID
 		ByteArrayInputStream bais = new ByteArrayInputStream(dexlen);
 		DataInputStream in = new DataInputStream(bais);
-		int readInt = in.readInt();//readInt中存放的应为壳APK的大小，即size_shellAPK
-		ByteArrayInputStream bis = new ByteArrayInputStream(bshellID);
-		DataInputStream din = new DataInputStream(bis);
-		int shellID = din.readInt();//读取加固ID
-		System.out.println(Integer.toHexString(readInt));
+		int readInt = in.readInt();//readInt中存放的应为OriginalAPK_en的大小
+		bais = new ByteArrayInputStream(bshellID);
+		in = new DataInputStream(bais);
+		//ByteArrayInputStream bis = new ByteArrayInputStream(bshellID);
+		//DataInputStream din = new DataInputStream(bis);
+		int shellID = in.readInt();//读取加固ID
+		Log.d(TAG, "OriginalAPK_en大小为："+readInt+"，shellID为："+shellID);
+		//System.out.println(Integer.toHexString(readInt));
 		byte[] newdex = new byte[readInt];
 		//把壳APK内容拷贝到newdex中
 		System.arraycopy(apkdata, ablen - 4 - 4 - readInt, newdex, 0, readInt);
