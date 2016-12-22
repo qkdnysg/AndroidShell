@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 public class RefInvoke {
 	/**
-	 * 反射执行类的静态方法
+	 * 反射调用类静态方法
 	 * @param class_name	类名
 	 * @param method_name	函数名
 	 * @param pareTyple		函数的参数类型
@@ -43,7 +43,7 @@ public class RefInvoke {
 	}
 	
 	/**
-	 * 反射执行类的方法（public）
+	 * 反射调用对象方法
 	 * @param class_name
 	 * @param method_name
 	 * @param obj
@@ -79,9 +79,43 @@ public class RefInvoke {
 		return null;
 		
 	}
+
+	/**
+	 * 反射获取类静态属性（包括私有和保护）
+	 * @param class_name
+	 * @param filedName
+	 * @return
+	 */
+	
+	public static Object getStaticFieldOjbect(String class_name, String filedName){
+		
+		try {
+			Class obj_class = Class.forName(class_name);
+			Field field = obj_class.getDeclaredField(filedName);
+			field.setAccessible(true);
+			return field.get(null);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+	}	
 	
 	/**
-	 * 反射得到类的属性（包括私有和保护）
+	 * 反射获取对象属性（包括私有和保护）
 	 * @param class_name
 	 * @param obj
 	 * @param filedName
@@ -114,18 +148,17 @@ public class RefInvoke {
 	}
 	
 	/**
-	 * 反射得到类的静态属性（包括私有和保护）
+	 * 反射设置类静态属性（包括私有和保护）
 	 * @param class_name
 	 * @param filedName
-	 * @return
+	 * @param filedVaule
 	 */
-	public static Object getStaticFieldOjbect(String class_name, String filedName){
-		
+	public static void setStaticOjbect(String class_name, String filedName, Object filedVaule){
 		try {
 			Class obj_class = Class.forName(class_name);
 			Field field = obj_class.getDeclaredField(filedName);
 			field.setAccessible(true);
-			return field.get(null);
+			field.set(null, filedVaule);
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,13 +174,11 @@ public class RefInvoke {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return null;
-		
+		}		
 	}
 	
 	/**
-	 * 设置类的属性（包括私有和保护）
+	 * 反射设置对象属性（包括私有和保护）
 	 * @param classname
 	 * @param filedName
 	 * @param obj
@@ -175,36 +206,6 @@ public class RefInvoke {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-	}
-	
-	/**
-	 * 设置类的静态属性（包括私有和保护）
-	 * @param class_name
-	 * @param filedName
-	 * @param filedVaule
-	 */
-	public static void setStaticOjbect(String class_name, String filedName, Object filedVaule){
-		try {
-			Class obj_class = Class.forName(class_name);
-			Field field = obj_class.getDeclaredField(filedName);
-			field.setAccessible(true);
-			field.set(null, filedVaule);
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
 	}
 
 }

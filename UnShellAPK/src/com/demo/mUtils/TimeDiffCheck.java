@@ -30,7 +30,7 @@ public class TimeDiffCheck {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				android.os.Process.killProcess(android.os.Process.myPid());
+				//android.os.Process.killProcess(android.os.Process.myPid());
 			}
 		}
 	  

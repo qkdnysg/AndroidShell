@@ -126,8 +126,7 @@ public class ProxyApplication extends Application{
 			//wr.get()=android.app.LoadedApk@379ed33
 			//base.getClassLoader(); 是不是就等同于 (ClassLoader) RefInvoke.getFieldOjbect()? 有空验证下//?
 			//把当前进程的DexClassLoader 设置成了被加壳apk的DexClassLoader  ----有点c++中进程环境的意思~~
-			RefInvoke.setFieldOjbect("android.app.LoadedApk", "mClassLoader",
-					wr.get(), dLoader);
+			RefInvoke.setFieldOjbect("android.app.LoadedApk", "mClassLoader", wr.get(), dLoader);
 			//wr.get().mClassLoader=dLoader//置换类加载器，实现动态加载之核心
 			
 			Log.i(TAG,"自定义的DexClassLoader:"+dLoader);
@@ -151,24 +150,21 @@ public class ProxyApplication extends Application{
 		{
 			//loadResources(apkFileName);
 			
-			Log.i(TAG, "onCreate方法启动...");
+			Log.i(TAG, "ProxyApplication的onCreate方法启动...");
 			// 如果源应用配置有Appliction对象，则替换为源应用Applicaiton，以便不影响源程序逻辑。
 			String appClassName = null;
 			try {
-				ApplicationInfo ai = this.getPackageManager()
-						.getApplicationInfo(this.getPackageName(),
-								PackageManager.GET_META_DATA);
+				ApplicationInfo ai = this.getPackageManager().getApplicationInfo(this.getPackageName(),	PackageManager.GET_META_DATA);
 				Bundle bundle = ai.metaData;
 				if (bundle != null && bundle.containsKey(APPCLSNM)) {
 					appClassName = bundle.getString(APPCLSNM);
 					//className 是配置在xml文件中的。获取meta-data中的原始apk的Application类名：com.demo.originalapk.OriginalApplication
-					
 				} else {
-					Log.i("demo", "failed to obtain application class name");
+					Log.i(TAG, "Failed to obtain application class name of the OriginalAPK!");
 					return;
 				}
 			} catch (NameNotFoundException e) {
-				Log.i("demo", "error:"+Log.getStackTraceString(e));
+				Log.i(TAG, "error:"+Log.getStackTraceString(e));
 				e.printStackTrace();
 			}
 			//有值的话调用该Applicaiton
@@ -207,8 +203,9 @@ public class ProxyApplication extends Application{
 			Application app = (Application) RefInvoke.invokeMethod(
 					"android.app.LoadedApk", "makeApplication", loadedApkInfo,
 					new Class[] { boolean.class, Instrumentation.class },
-					new Object[] { false, null });//执行 makeApplication（false,null）
+					new Object[] { false, null });
 			//app = loadedApkInfo.makeApplication(false, null) = com.demo.originalapk.OriginalApplication@34f8edd3
+			Log.i(TAG, "反射执行makeApplication方法生成的app对象:"+app);
 			RefInvoke.setFieldOjbect("android.app.ActivityThread",
 					"mInitialApplication", currentActivityThread, app);
 			//currentActivityThread.mInitialApplication = app = com.demo.originalapk.OriginalApplication@34f8edd3
@@ -232,8 +229,6 @@ public class ProxyApplication extends Application{
 				//1.localProvider.mContext = app
 			}
 			
-			Log.i("demo", "app:"+app);
-			
 			app.onCreate();
 		}
 	}
@@ -256,7 +251,6 @@ public class ProxyApplication extends Application{
 	    return hex.toString();
 	}
 	/**
-	 * 已读！！！
 	 * 释放源APK文件，并提取源APK文件中的so文件到data/data/包名/payload_lib目录
 	 * @param byte[] apkdata
 	 * @throws IOException
@@ -360,7 +354,6 @@ public class ProxyApplication extends Application{
 	
 
 	/**
-	 * 已读！！！
 	 * 从apk包里面获取dex文件内容（byte）
 	 * @return byte[]
 	 * @throws IOException
@@ -394,6 +387,7 @@ public class ProxyApplication extends Application{
 
 
 	/**
+	 * 逐字节取反的方法放在了native方法中实现，因此该方法不再使用
 	 * 解壳方法
 	 * 此处的解壳方法简化为逐字节取反
 	 */ 
@@ -417,13 +411,13 @@ public class ProxyApplication extends Application{
             addAssetPath.invoke(assetManager, dexPath);  
             mAssetManager = assetManager;  
         } catch (Exception e) {  
-        	Log.i("inject", "loadResource error:"+Log.getStackTraceString(e));
+        	Log.i(TAG, "loadResource error:"+Log.getStackTraceString(e));
             e.printStackTrace();  
         }  
         Resources superRes = super.getResources();  
         superRes.getDisplayMetrics();  
         superRes.getConfiguration();  
-        mResources = new Resources(mAssetManager, superRes.getDisplayMetrics(),superRes.getConfiguration());  
+        mResources = new Resources(mAssetManager, superRes.getDisplayMetrics(), superRes.getConfiguration());  
         mTheme = mResources.newTheme();  
         mTheme.setTo(super.getTheme());
     }  
