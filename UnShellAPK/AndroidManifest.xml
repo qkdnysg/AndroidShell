@@ -35,6 +35,9 @@
         <activity
             android:name="com.demo.originalapk.ThirdActivity">
         </activity>
+          <activity
+            android:name="com.demo.originalapk.FourthMainActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -10,7 +10,7 @@
 
 #define MAX 128
 #define CHECK_TIME 10
-#define LOG_TAG "com.demo.jnitool"
+#define LOG_TAG "com.demo.unshellapk"
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -25,7 +25,7 @@
 void  anti_debug() __attribute__((constructor));
 void anti_debug()
 {
-	LOGI("Enter into anti_debug()...");
+	LOGE("Enter into anti_debug()...");
 	int pid;
 	FILE *fd;
 	char filename[MAX];
@@ -34,6 +34,7 @@ void anti_debug()
 	sprintf(filename,"/proc/%d/status",pid);//filename=/proc/pid/status
 	if(fork()==0)
 	{
+		LOGE("子进程中...");
 		int pt;
 		pt = ptrace(PTRACE_TRACEME, 0, 0, 0); //子进程反调试
 		while(1)
@@ -44,13 +45,13 @@ void anti_debug()
 				if(strncmp(line,"TracerPid",9) == 0)
 				{
 					int TracerPid = atoi(&line[10]); //字符转整型
-					LOGI("***** TracerPid = %d", TracerPid); //打印TracerPid:0/非0
+					LOGD("***** TracerPid = %d", TracerPid); //打印TracerPid:0/非0
 					fclose(fd);
 					if(TracerPid != 0)
 					{
-						LOGI("***** Debugger is found here! Killing %d ...", pid);
+						LOGD("***** Debugger is found here! Killing %d ...", pid);
 						int ret = kill( pid,SIGKILL);// 成功执行时，返回0。失败返回-1
-						LOGI("***** kill() = %d", ret);
+						LOGD("***** kill() = %d", ret);
 						return;
 					}
 					break;
@@ -154,23 +155,23 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 	if(JNI_OK != (*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6)){ //加载指定版本的JNI
 			return -1;
 	}
-	LOGI("JNI_OnLoad()");
+	LOGE("进入JNI_OnLoad()加载了指定版本的JNI-----1.6");
 	jclass jni_class = (*env)->FindClass(env, "com/demo/jnitool/JNITool");
-	//注册未声明本地方法
+	//注册未声明的本地方法
 	if (JNI_OK == (*env)->RegisterNatives(env, jni_class, jniMethods, NELEM(jniMethods))){
-			LOGI("RegisterNatives() OK!");
+			LOGI("RegisterNatives() OK!注册native方法成功！");
 		} else {
-			LOGE("RegisterNatives() FAILED!");
+			LOGE("RegisterNatives() FAILED!注册native方法失败！");
 			return -1;
 		}
 	return JNI_VERSION_1_6;
 }
 
 void JNI_OnUnLoad(JavaVM* vm, void* reserved){
-	LOGI("JNI_OnUnLoad()");
+	LOGI("进入JNI_OnUnLoad()");
 	jclass jni_class = (*env)->FindClass(env, "com/demo/jnitool/JNITool");
 	(*env)->UnregisterNatives(env, jni_class);
-	LOGI("UnregisterNatives()");
+	LOGI("调用UnregisterNatives()");
 }
 
 

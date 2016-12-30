@@ -230,6 +230,7 @@ public class ProxyApplication extends Application{
 			}
 			
 			app.onCreate();
+			loadResources(apkFileName);
 		}
 	}
 	//MD5方法
@@ -303,6 +304,7 @@ public class ProxyApplication extends Application{
 		Log.d(TAG, "加密/解密密钥为:" + key);
 		key = JNITool.checkey(key);//第二次调试检测，若检测到调试器，则key将被该方法修改
 		Log.i("demo", "开始解密");
+		//String key = "19e2dfbe-4b4d-4f77-b527-af8c1c3608ab";
 		newdex = JNITool.decrypt(key, newdex);
 		newdex = JNITool.unShell(newdex);//逐字节取反		 
 		Log.i("demo", "解密完成");
@@ -399,7 +401,7 @@ public class ProxyApplication extends Application{
 	}
 	
 	
-	//以下是加载资源
+	//以下是资源加载
 	protected AssetManager mAssetManager;//资源管理器 
 	protected Resources mResources;//资源  
 	protected Theme mTheme;///主题  
@@ -415,8 +417,8 @@ public class ProxyApplication extends Application{
             e.printStackTrace();  
         }  
         Resources superRes = super.getResources();  
-        superRes.getDisplayMetrics();  
-        superRes.getConfiguration();  
+        //superRes.getDisplayMetrics();//多余  
+        //superRes.getConfiguration();//多余  
         mResources = new Resources(mAssetManager, superRes.getDisplayMetrics(), superRes.getConfiguration());  
         mTheme = mResources.newTheme();  
         mTheme.setTo(super.getTheme());

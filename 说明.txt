@@ -1,0 +1,16 @@
+OriginalAPK：Android工程，作为加固对象
+ShellTools：Java工程，实现对OriginalAPK的加密，并将加密后内容写入UnShellAPK的dex文件，完成dex文件修复
+UnShellAPK：Android工程，壳
+android_connect：服务端代码，用于返回加密id对应的密钥
+
+使用流程：
+1. 将android_connect目录置于wampserver的www目录
+
+2. 运行OriginalAPK生成OriginalAPK.apk文件，将该文件拷入ShellTools的workspace目录
+
+3. 运行UnShellAPK生成classes.dex文件，将该文件拷入ShellTools的workspace目录（此时的UnShellAPK没有载荷尚不能成功执行，没有关系，此步骤只是为了生成dex文件）
+
+4. 运行ShellTools，实现将OriginalAPK.apk嵌入classes.dex文件，生成classesWithPayload.dex，然后打开第3步生成的UnShellAPK.apk，拷入classesWithPayload.dex，删除原有classes.dex文件及签名目录META-INF，将classesWithPayload.dex重命名为classes.dex，重新签名即可安装运行。（本机环境下，右键->发送到signapk.bat即可。）
+
+目前存在的问题：
+必须以代码的形式实现布局，而不能以XML文件的形式（第四个界面加载不成功）。
