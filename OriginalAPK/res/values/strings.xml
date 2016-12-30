@@ -3,8 +3,10 @@
 
     <string name="app_name">OriginalAPK</string>
     <string name="hello_world">Hello! This is the 3rd activity!</string>
+    <string name="fourth">Hello! This is the 4th activity!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_second">SecondActivity</string>
     <string name="title_activity_third">ThirdActivity</string>
+    <string name="title_activity_fourth_main">FourthActivity</string>
 
 </resources>

@@ -33,6 +33,10 @@
             android:name=".ThirdActivity"
             android:label="@string/title_activity_third" >
         </activity>
+        <activity
+            android:name=".FourthMainActivity"
+            android:label="@string/title_activity_fourth_main" >
+        </activity>
     </application>
 
 </manifest>
