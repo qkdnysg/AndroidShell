@@ -1,0 +1,6 @@
+# view AndroidManifest.xml #generated:17
+-keep class com.demo.androidemulatorcheck.MainActivity { <init>(...); }
+
+# onClick res/layout/activity_main.xml #generated:11
+-keepclassmembers class * { *** StartCheck(...); }
+
