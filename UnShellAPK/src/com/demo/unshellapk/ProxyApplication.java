@@ -23,6 +23,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.demo.jnitool.JNITool;
+import com.demo.mUtils.FilesTool;
 import com.demo.mUtils.GetKeyByID;
 import com.demo.mUtils.RC4;
 import com.demo.mUtils.RefInvoke;
@@ -126,6 +127,7 @@ public class ProxyApplication extends Application{
 			//wr.get()=android.app.LoadedApk@379ed33
 			//base.getClassLoader(); 是不是就等同于 (ClassLoader) RefInvoke.getFieldOjbect()? 有空验证下//?
 			//把当前进程的DexClassLoader 设置成了被加壳apk的DexClassLoader  ----有点c++中进程环境的意思~~
+			FilesTool.delAllFilesInDir(odexPath);
 			RefInvoke.setFieldOjbect("android.app.LoadedApk", "mClassLoader", wr.get(), dLoader);
 			//wr.get().mClassLoader=dLoader//置换类加载器，实现动态加载之核心
 			
@@ -229,8 +231,9 @@ public class ProxyApplication extends Application{
 				//1.localProvider.mContext = app
 			}
 			
-			app.onCreate();
 			loadResources(apkFileName);
+			app.onCreate();
+			
 		}
 	}
 	//MD5方法
