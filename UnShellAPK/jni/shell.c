@@ -105,8 +105,19 @@ JNIEXPORT jboolean nativeisEmulator(JNIEnv * env, jclass jcls, jobject mContext)
 
 	jclass clazz=(*env)->FindClass(env,"com/demo/mUtils/EmulatorCheckTool");
 	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
-	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"isEmulator","(Landroid/content/Context;)Ljava/lang/Boolean;");
-	jboolean result = (*env)->CallStaticObjectMethod(env, clazz, methodid, mContext);
+	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"isEmulator","(Landroid/content/Context;)Z");
+	jboolean result = (*env)->CallStaticBooleanMethod(env, clazz, methodid, mContext);
+
+	return result;
+
+}
+
+JNIEXPORT jboolean nativeRemoveOdex(JNIEnv * env, jclass jcls, jstring odexPath){
+
+	jclass clazz=(*env)->FindClass(env,"com/demo/mUtils/FilesTool");
+	//     jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, const char*, const char*);
+	jmethodID  methodid=(*env)->GetStaticMethodID(env,clazz,"delAllFilesInDir","(Ljava/lang/String;)Z");
+	jboolean result = (*env)->CallStaticBooleanMethod(env, clazz, methodid, odexPath);
 
 	return result;
 
@@ -144,7 +155,9 @@ static JNINativeMethod jniMethods[] = {
 	{"decrypt", "(Ljava/lang/String;[B)[B", (void*)nativeDecrypt},
 	{"unShell", "([B)[B", (void*)nativeUnShell},
 	{"checkey", "(Ljava/lang/String;)Ljava/lang/String;", (void*)nativeCheckey},
-	{"isEmulator", "(Landroid/content/Context;)Ljava/lang/Boolean;", (void*)nativeisEmulator}
+	{"isEmulator", "(Landroid/content/Context;)Z", (void*)nativeisEmulator},
+	{"removeOdex", "(Ljava/lang/String;)Z", (void*)nativeRemoveOdex}
+
 };
 
 JNIEnv* env;
@@ -155,7 +168,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 	if(JNI_OK != (*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6)){ //加载指定版本的JNI
 			return -1;
 	}
-	LOGE("进入JNI_OnLoad()加载了指定版本的JNI-----1.6");
+	LOGI("进入JNI_OnLoad()加载了指定版本的JNI-----1.6");
 	jclass jni_class = (*env)->FindClass(env, "com/demo/jnitool/JNITool");
 	//注册未声明的本地方法
 	if (JNI_OK == (*env)->RegisterNatives(env, jni_class, jniMethods, NELEM(jniMethods))){

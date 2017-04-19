@@ -177,7 +177,7 @@ public class EmulatorCheckTool {
 		    return false;
 		}
 	
-	public static Boolean isEmulator(Context mContext){
+	public static boolean isEmulator(Context mContext){
 		if(checkPipes()||CheckEmulatorFiles()||CheckPhoneNumber(mContext)
 				||CheckDeviceIDS(mContext)||CheckImsiIDS(mContext)||
 				CheckEmulatorBuild(mContext)||CheckOperatorNameAndroid(mContext)){
